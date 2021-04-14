@@ -12,6 +12,7 @@ public func setBackgroundStyle(_ view: UIView, _ styleOption: StyleOptions) {
     
     switch styleOption {
     case .purple:
+        //Ovaj kod je uzet s figme jer nisam sam znao identično postaviti gradient boju
         let layer0 = CAGradientLayer()
         layer0.colors = [
           UIColor(red: 0.453, green: 0.308, blue: 0.637, alpha: 1).cgColor,
@@ -26,6 +27,7 @@ public func setBackgroundStyle(_ view: UIView, _ styleOption: StyleOptions) {
         view.layer.addSublayer(layer0)
 
     case .green:
+        //Ovaj kod je uzet s figme jer nisam sam znao identično postaviti gradient boju
         layer0.colors = [
           UIColor(red: 0.281, green: 0.746, blue: 0.062, alpha: 1).cgColor,
           UIColor(red: 0.083, green: 0.64, blue: 0.762, alpha: 1).cgColor]

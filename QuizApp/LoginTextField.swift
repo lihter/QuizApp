@@ -33,13 +33,6 @@ class LoginTextField: UITextField {
         return bounds.inset(by: insets)
     }
     
-    public func setPlaceholder(placeholderText: String) {
-        //Ako postavim boju placeholdera u bijelu onda se ne vidi tekst uopce
-        attributedPlaceholder =
-            NSAttributedString(string: placeholderText,
-                               attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
-    }
-    
     //MARK: Constants
     let textFieldOpacity : CGFloat = 0.3
     let topAndBottomInset : CGFloat = 10

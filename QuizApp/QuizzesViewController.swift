@@ -34,7 +34,6 @@ class QuizzesViewController: UIViewController {
     }
     
     @objc func getQuizzes() {
-        //Prije nego što ih postavim hidden bi ustvari trebalo provjeriti ako je fetchanje kvizova bilo uspješno, ali trenutno nemam načina kako da to povjerim
         self.errorTitle.isHidden = true
         self.errorDescription.isHidden = true
         self.errorImageView.isHidden = true
