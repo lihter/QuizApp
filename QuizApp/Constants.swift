@@ -7,9 +7,8 @@
 
 import UIKit
 
-let style: StyleOptions = .purple
+let style: StyleOptions = .purple //Options: .purple .green .red
 let tabBarItemFontSize: CGFloat = 12
-let tabBarItemColorSelected: UIColor = UIColor(red: 116/255, green: 79/255, blue: 163/255, alpha: 1)
 let buttonWidthInset : Int = 32
 let viewElementHeight : Int = 44
 let titleLabelSize: CGFloat = 24

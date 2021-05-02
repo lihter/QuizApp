@@ -9,16 +9,31 @@ import UIKit
 import SnapKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
-    var titleLabel: PopQuizLabel!
-    var emailTextField: LoginTextField!
-    var passwordTextField: LoginTextField!
-    var loginButton: MenuButton!
-    var loginDataService: DataService!
-    var wrongCredentialsLabel: UILabel!
-    var showPasswordButton: UIButton!
-    let tabBarViewController = UITabBarController()
+    //MARK: Constants
     
-    let dataService = DataService()
+    private let distance : CGFloat = 18
+    private let buttonOpacity : CGFloat = 0.6
+    private let emailOffsetFromSuperview : CGFloat = 240
+    private let titleLabelSizeLogin : CGFloat = 32
+    private let titleLabelTopOffset : CGFloat = 80
+    private let wrongCredentialsMessage : String = "Whoops! Couldn’t find your PopQuiz Account"
+    private let wrongCredentialsFontSize : CGFloat = 16
+    private let offsetEmailMultiplier: CGFloat = 0.2843
+    private let offsetTitleMultiplier: CGFloat = 0.0948
+    
+    
+    //MARK: Code
+    private var titleLabel: PopQuizLabel!
+    private var emailTextField: LoginTextField!
+    private var passwordTextField: LoginTextField!
+    private var loginButton: MenuButton!
+    private var loginDataService: DataService!
+    private var wrongCredentialsLabel: UILabel!
+    private var showPasswordButton: UIButton!
+    private var activeTextField: UITextField!
+    private let tabBarViewController = UITabBarController()
+    
+    private let dataService = DataService()
     
 
     override func viewDidLoad() {
@@ -28,17 +43,55 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         addConstraints()
         loginButton.addTarget(self, action: #selector(loginPressed), for: .touchUpInside)
         showPasswordButton.addTarget(self, action: #selector(showHidePassword), for: .touchUpInside)
+        
+        //Listeners
         [emailTextField, passwordTextField].forEach {$0?.addTarget(self, action: #selector(textChanged(_:)), for: .editingChanged)}
         [emailTextField, passwordTextField].forEach {$0?.addTarget(self, action: #selector(editBegin(_:)), for: .editingDidBegin)}
         [emailTextField, passwordTextField].forEach {$0?.addTarget(self, action: #selector(editEnd(_:)), for: .editingDidEnd)}
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        //Dismissing keyboard by touching anywhere on the screen
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
+        view.addGestureRecognizer(tap)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func updateViewConstraints() {
+            super.updateViewConstraints()
+            updateConstraints()
+    }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+            super.traitCollectionDidChange(previousTraitCollection)
+            view.setNeedsUpdateConstraints()
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc func keyboardDidShow(notification: Notification) {
+        let info: NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+        let keyboardY = view.frame.size.height -  keyboardSize.height
+        let editingTextFieldY: CGFloat! = activeTextField?.frame.origin.y
+        
+        if(editingTextFieldY > keyboardY - 60 && view.frame.origin.y >= 0) {
+            view.frame = CGRect(x: 0, y: view.frame.origin.y - (editingTextFieldY! - (keyboardY - 60)), width: view.bounds.width, height: view.bounds.height)
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: Notification) {
+        view.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
     }
     
     @objc func showHidePassword() {
-        if passwordTextField.isSecureTextEntry {
-            passwordTextField.isSecureTextEntry = false
-        } else {
-            passwordTextField.isSecureTextEntry = true
-        }
+        passwordTextField.isSecureTextEntry.toggle()
     }
     
     @objc func textChanged(_ textField: UITextField) {
@@ -47,43 +100,44 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         textField.text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        loginButton.isEnabled = ![emailTextField, passwordTextField].compactMap {
+        loginButton.isEnabled = ![emailTextField, passwordTextField].compactMap { // promijeniti na citljivije
             $0.text?.isEmpty
         }.contains(true)
         
-        if loginButton.isEnabled {
-            loginButton.alpha = 1
-        }
+        loginButton.alpha = loginButton.isEnabled ? 1 : 0.6
     }
     
     @objc func editBegin(_ textField: UITextField) {
         if textField == passwordTextField {
-            showPasswordButton.isHidden = false
+            showPasswordButton.isHidden.toggle()
         }
         
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.white.cgColor
+        
+        activeTextField = textField
     }
     
     @objc func editEnd(_ textField: UITextField) {
         if textField == passwordTextField {
-            showPasswordButton.isHidden = true
-            passwordTextField.isSecureTextEntry = true
+            showPasswordButton.isHidden.toggle()
+            passwordTextField.isSecureTextEntry.toggle()
         }
         
         textField.layer.borderWidth = 0
         textField.layer.borderColor = UIColor.clear.cgColor
+        textField.resignFirstResponder()
     }
 
     @objc func loginPressed() {
-        print("email: \(emailTextField.text!) password: \(passwordTextField.text!)")
+        print("email: \(emailTextField.text!) password: \(passwordTextField.text!)") //guard stavit
         let loginStatus = dataService.login(email: emailTextField.text!, password: passwordTextField.text!)
         if case loginStatus = LoginStatus.success {
             initializeTabBar()
             tabBarViewController.modalPresentationStyle = .fullScreen
             present(tabBarViewController, animated: true, completion: nil)
         } else {
-            wrongCredentialsLabel.isHidden = false
+            wrongCredentialsLabel.isHidden.toggle()
         }
     }
     
@@ -101,11 +155,18 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         UITabBarItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.black], for: .selected)
 
         let items = tabBarViewController.tabBar.items!
-        let images = ["questionmark.square.fill", "magnifyingglass", "gearshape.fill"]
-        for i in 0..<items.count {
-            items[i].image = UIImage(systemName: images[i])
-            items[i].selectedImage = UIImage(systemName: images[i])?.withTintColor(tabBarItemColorSelected, renderingMode: .alwaysOriginal)
-        }
+        items[0].image = ImageEnum.firstTabBarItem.image
+        items[0].selectedImage = ImageEnum.firstTabBarItemSelected.image
+        items[1].image = ImageEnum.secondTabBarItem.image
+        items[1].selectedImage = ImageEnum.secondTabBarItemSelected.image
+        items[2].image = ImageEnum.thirdTabBarItem.image
+        items[2].selectedImage = ImageEnum.thirdTabBarItemSelected.image
+        /*items[0].image = UIImage(systemName: "questionmark.square.fill")
+        items[0].selectedImage = UIImage(systemName: "questionmark.square.fill")?.withTintColor(tabBarItemColorSelected, renderingMode: .alwaysOriginal)
+        items[1].image = UIImage(systemName: "magnifyingglass")
+        items[1].selectedImage = UIImage(systemName: "magnifyingglass")?.withTintColor(tabBarItemColorSelected, renderingMode: .alwaysOriginal)
+        items[2].image = UIImage(systemName: "gearshape.fill")
+        items[2].selectedImage = UIImage(systemName: "gearshape.fill")?.withTintColor(tabBarItemColorSelected, renderingMode: .alwaysOriginal)*/
     }
     
     private  func buildViews()  {
@@ -119,12 +180,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         //MARK: Email Text Field
         emailTextField = LoginTextField()
         emailTextField.attributedPlaceholder = NSAttributedString(string: "Email",
-                                                                  attributes: [NSAttributedString.Key.foregroundColor: UIColor(red: 1, green: 1, blue: 1, alpha: 0.6)])
+                                                                  attributes: [NSAttributedString.Key.foregroundColor: UIColor.white.withAlphaComponent(0.6)])
         
         //MARK: Password Text Field
         passwordTextField = LoginTextField()
         passwordTextField.attributedPlaceholder =  NSAttributedString(string: "Password",
-                                                                      attributes: [NSAttributedString.Key.foregroundColor: UIColor(red: 1, green: 1, blue: 1, alpha: 0.6)])
+                                                                      attributes: [NSAttributedString.Key.foregroundColor: UIColor.white.withAlphaComponent(0.6)])
         passwordTextField.isSecureTextEntry = true
         
         //MARK: Title Pop Quiz Label
@@ -143,7 +204,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         //MARK: Show Password Button
         showPasswordButton = UIButton()
-        showPasswordButton.setImage(UIImage(named: showPasswordImage), for: .normal)
+        showPasswordButton.setImage(ImageEnum.passwordEye.image, for: .normal)
         showPasswordButton.isHidden = true
         showPasswordButton.backgroundColor = UIColor.clear
         
@@ -155,11 +216,19 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         view.addSubview(showPasswordButton)
     }
     
+    private func updateConstraints() {
+        emailTextField.snp.updateConstraints{
+            $0.top.equalTo(view).offset(view.bounds.height * offsetEmailMultiplier)
+        }
+        
+        titleLabel.snp.updateConstraints{
+            $0.top.equalTo(view).offset(view.bounds.height * offsetTitleMultiplier)
+        }
+    }
+    
     private func addConstraints() {
-        loginButton.snp.makeConstraints{
-            $0.width.equalTo(view).inset(buttonWidthInset)
-            $0.height.equalTo(viewElementHeight)
-            $0.top.equalTo(passwordTextField.snp.bottom).offset(distance)
+        titleLabel.snp.makeConstraints{
+            $0.top.equalTo(view).offset(view.bounds.height * offsetTitleMultiplier)
             $0.centerX.equalTo(view)
         }
         
@@ -169,19 +238,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             
             /*Želio sam napraviti offset od superviewa da bude ovisan o visini ekrana, a ne konstantan
             no nisam siguran kako to napraviti*/
-            $0.top.equalToSuperview().offset(emailOffsetFromSuperview)
+            $0.top.equalTo(view).offset(view.bounds.height * offsetEmailMultiplier)
+            //view.bounds.height * 0.2
+            //pomaknuti constrainte kad se pojavi tipkovnica
             $0.centerX.equalTo(view)
         }
+        
+        loginButton.snp.makeConstraints{
+            $0.width.equalTo(view).inset(buttonWidthInset)
+            $0.height.equalTo(viewElementHeight)
+            $0.top.equalTo(passwordTextField.snp.bottom).offset(distance)
+            $0.centerX.equalTo(view)
+        }
+        
         
         passwordTextField.snp.makeConstraints{
             $0.width.equalTo(view).inset(buttonWidthInset)
             $0.height.equalTo(viewElementHeight)
             $0.top.equalTo(emailTextField.snp.bottom).offset(distance)
-            $0.centerX.equalTo(view)
-        }
-        
-        titleLabel.snp.makeConstraints{
-            $0.top.equalToSuperview().offset(titleLabelTopOffset)
             $0.centerX.equalTo(view)
         }
         
@@ -197,15 +271,4 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
         
     }
-    
-    //MARK: Constants
-    
-    let distance : CGFloat = 18
-    let buttonOpacity : CGFloat = 0.6
-    let emailOffsetFromSuperview : CGFloat = 240
-    let titleLabelSizeLogin : CGFloat = 32
-    let titleLabelTopOffset : CGFloat = 80
-    let wrongCredentialsMessage : String = "Whoops! Couldn’t find your PopQuiz Account"
-    let wrongCredentialsFontSize : CGFloat = 16
-    let showPasswordImage: String = "Hide.svg"
 }

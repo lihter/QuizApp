@@ -10,20 +10,40 @@ import SnapKit
 
 class QuizzesViewController: UIViewController {
     
-    var titleLabel: PopQuizLabel!
-    var getQuizzesButton: MenuButton!
+    //MARK: Constants
+    private let buttonOpacity: CGFloat = 1.0
+    private let distance: CGFloat = 10
+    private let tableViewFromFunFactTextOffset: CGFloat = 32
+    private let titleLabelTopOffsetMultiplier: CGFloat = 0.0723
+    private let buttonFromTitleLabelOffsetMultiplier: CGFloat = 0.0415
+    private let errorImageName: String = "multiply.circle"
+    private let errorImageDimensions: CGFloat = 67
+    private let errorTitleFontSize: CGFloat = 28
+    private let errorDescriptionWidth: CGFloat = 211
+    private let errorDescriptionHeight: CGFloat = 69
+    private let errorDescriptionFontSize: CGFloat = 16
+    private let tableViewRowHeight: CGFloat = 153
+    private let funFactDescriptionFontSize: CGFloat = 18
+    private let funFactFromButtonOffsetMultiplier: CGFloat = 0.0652
+    private let elementInset: CGFloat = 24
+    private let previewAlphaComponent: CGFloat = 0.6
     
-    var errorImageView: UIImageView!
-    var errorTitle: UILabel!
-    var errorDescription: UILabel!
     
-    var quizTableView = UITableView()
-    var funFactTitle: UILabel!
-    var funFactDescription: UILabel!
+    //MARK:Code
+    private var titleLabel: PopQuizLabel!
+    private var getQuizzesButton: MenuButton!
     
-    let quizCellId: String = "quizCell"
+    private var errorImageView: UIImageView!
+    private var errorTitle: UILabel!
+    private var errorDescription: UILabel!
     
-    var quizzesMatrix: [[Quiz]] = [[]]
+    private var quizTableView = UITableView(frame: .zero, style: .grouped)
+    private var funFactTitle: UILabel!
+    private var funFactDescription: UILabel!
+    
+    private let quizCellId: String = "quizCell"
+    
+    private var quizzesMatrix: [[Quiz]] = [[]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,9 +54,11 @@ class QuizzesViewController: UIViewController {
     }
     
     @objc func getQuizzes() {
-        self.errorTitle.isHidden = true
-        self.errorDescription.isHidden = true
-        self.errorImageView.isHidden = true
+        if !errorTitle.isHidden {
+            errorTitle.isHidden = true
+            errorDescription.isHidden = true
+            errorImageView.isHidden = true
+        }
         
         let dataService = DataService()
         quizzesMatrix = sortBySections(dataService.fetchQuizes())
@@ -44,7 +66,16 @@ class QuizzesViewController: UIViewController {
         configureTableView()
     }
     
-    func configureFunFact() {
+    override func updateViewConstraints() {
+        super.updateViewConstraints()
+        updateConstraints()
+    }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        view.setNeedsUpdateConstraints()
+    }
+    
+    private func configureFunFact() {
         
         //MARK: Fun Fact Title
         funFactTitle = UILabel()
@@ -69,7 +100,7 @@ class QuizzesViewController: UIViewController {
         setFunFactConstraints()
     }
     
-    func configureTableView() {
+    private func configureTableView() {
         view.addSubview(quizTableView)
         setQuizTableViewDelegates()
         quizTableView.rowHeight = tableViewRowHeight
@@ -78,9 +109,9 @@ class QuizzesViewController: UIViewController {
         quizTableView.showsVerticalScrollIndicator = false
         
         //Morao sam umetnuti ovaj kod kako bi se riješio sticky/floating section headera
-        let dummyViewHeight = CGFloat(40)
+        /*let dummyViewHeight = CGFloat(40)
         quizTableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.quizTableView.bounds.size.width, height: dummyViewHeight))
-        quizTableView.contentInset = UIEdgeInsets(top: -dummyViewHeight, left: 0, bottom: 0, right: 0)
+        quizTableView.contentInset = UIEdgeInsets(top: -dummyViewHeight, left: 0, bottom: 0, right: 0)*/
         
         
         quizTableView.register(QuizCell.self, forCellReuseIdentifier: quizCellId)
@@ -100,7 +131,7 @@ class QuizzesViewController: UIViewController {
         
         //MARK: Error message elements
         //Mogu sliku uzeti i iz SF Symbols, ali sam ju odlucio ovako importat da primjenim i ovu opciju
-        errorImageView = UIImageView(image: UIImage(named: "errorImageFile.svg"))
+        errorImageView = UIImageView(image: ImageEnum.errorSign.image)
         
         errorTitle = UILabel()
         errorTitle.font = UIFont(name: Fonts.mainBold, size: errorTitleFontSize)
@@ -127,21 +158,47 @@ class QuizzesViewController: UIViewController {
         view.addSubview(errorDescription)
     }
     
+    private func updateConstraints() {
+        titleLabel.snp.updateConstraints{
+            $0.top.equalTo(view).offset(view.bounds.height * titleLabelTopOffsetMultiplier)
+        }
+        
+        getQuizzesButton.snp.updateConstraints{
+            $0.top.equalTo(titleLabel.snp.bottom).offset(view.bounds.height * buttonFromTitleLabelOffsetMultiplier)
+        }
+        
+        if errorImageView.isHidden {
+            funFactTitle.snp.updateConstraints {
+                $0.top.equalTo(getQuizzesButton.snp.bottom).offset(view.bounds.height * funFactFromButtonOffsetMultiplier)
+            }
+            quizTableView.snp.updateConstraints{
+                $0.top.equalTo(funFactDescription.snp.bottom).offset(view.bounds.height * 0.0379)
+            }
+        } else {
+            errorImageView.snp.updateConstraints{
+                $0.height.equalTo(view.bounds.height * 0.1)
+                $0.width.equalTo(view.bounds.height * 0.1)
+            }
+        }
+    }
+    
     private func addConstraints() {
         titleLabel.snp.makeConstraints{
-            $0.top.equalToSuperview().offset(titleLabelTopOffset)
+            $0.top.equalToSuperview().offset(titleLabelTopOffsetMultiplier)
             $0.centerX.equalTo(view)
         }
         
         getQuizzesButton.snp.makeConstraints {
             $0.width.equalTo(view).inset(buttonWidthInset)
             $0.height.equalTo(viewElementHeight)
-            $0.top.equalTo(titleLabel.snp.bottom).offset(buttonFromTitleLabelOffset)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(view.bounds.height * buttonFromTitleLabelOffsetMultiplier)
             $0.centerX.equalTo(view)
         }
         
         errorImageView.snp.makeConstraints {
             $0.centerX.equalTo(view)
+            $0.height.equalTo(view.bounds.height * 0.1)
+            $0.width.equalTo(view.bounds.height * 0.1)
             $0.bottom.equalTo(errorTitle.snp.top).offset(distance * -1)
         }
         
@@ -155,23 +212,24 @@ class QuizzesViewController: UIViewController {
         }
     }
     
-    func setQuizTableViewDelegates() {
+    private func setQuizTableViewDelegates() {
         quizTableView.delegate = self
         quizTableView.dataSource = self
     }
     
-    func setQuizTableViewConstraints() {
+    private func setQuizTableViewConstraints() {
         //Ne koristim snapkit sada da isprobam i druge alate
-        quizTableView.translatesAutoresizingMaskIntoConstraints = false
-        quizTableView.topAnchor.constraint(equalTo: funFactDescription.bottomAnchor, constant: 32).isActive = true
-        quizTableView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
-        quizTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        quizTableView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+        quizTableView.snp.makeConstraints{
+            $0.top.equalTo(funFactDescription.snp.bottom).offset(view.bounds.height * 0.0379)
+            $0.leading.equalTo(view.snp.leading).inset(20)
+            $0.trailing.equalTo(view.snp.trailing).inset(20)
+            $0.bottom.equalTo(view.snp.bottom)
+        }
     }
     
-    func setFunFactConstraints() {
+    private func setFunFactConstraints() {
         funFactTitle.snp.makeConstraints {
-            $0.top.equalTo(getQuizzesButton.snp.bottom).offset(funFactFromButtonOffset)
+            $0.top.equalTo(getQuizzesButton.snp.bottom).offset(view.bounds.height * funFactFromButtonOffsetMultiplier)
             $0.width.equalTo(view).inset(elementInset)
             $0.centerX.equalTo(view)
         }
@@ -182,9 +240,9 @@ class QuizzesViewController: UIViewController {
         }
     }
     
-    func sortBySections(_ quizzes: [Quiz]) -> [[Quiz]] {
-        var matrix = [[Quiz]]()
-        for quiz in quizzes {
+    private func sortBySections(_ quizzes: [Quiz]) -> [[Quiz]] {
+        /*var matrix = [[Quiz]]()
+        for quiz in quizzes { // citljivije ostvariti ovu fju
             if matrix.count == 0 {
                 matrix.append([quiz])
             } else {
@@ -192,7 +250,6 @@ class QuizzesViewController: UIViewController {
                 var index: Int = 0
                 for section in matrix{
                     if section.first!.category == quiz.category {
-                        //section.append(quiz)
                         added = true
                         break
                     }
@@ -204,8 +261,10 @@ class QuizzesViewController: UIViewController {
                     matrix[index].append(quiz)
                 }
             }
-        }
-        return matrix
+        }*/
+        let groupedDict = Dictionary(grouping: quizzes, by: { $0.category })
+        let array2d = groupedDict.map({ $0.value })
+        return array2d
     }
     
     private func numberOfNBAMentiones() -> Int {
@@ -213,24 +272,6 @@ class QuizzesViewController: UIViewController {
             .filter{ $0.question.contains("NBA")} }
             .count
     }
-    
-    //MARK: Constants
-    let buttonOpacity: CGFloat = 1.0
-    let distance: CGFloat = 10
-    let tableViewFromFunFactTextOffset: CGFloat = 32
-    let titleLabelTopOffset: CGFloat = 61
-    let buttonFromTitleLabelOffset: CGFloat = 35
-    let errorImageName: String = "multiply.circle"
-    let errorImageDimensions: CGFloat = 67
-    let errorTitleFontSize: CGFloat = 28
-    let errorDescriptionWidth: CGFloat = 211
-    let errorDescriptionHeight: CGFloat = 69
-    let errorDescriptionFontSize: CGFloat = 16
-    let tableViewRowHeight: CGFloat = 153
-    let funFactDescriptionFontSize: CGFloat = 18
-    let funFactFromButtonOffset: CGFloat = 55
-    let elementInset: CGFloat = 24
-    let previewAlphaComponent: CGFloat = 0.6
 }
 
 extension QuizzesViewController: UITableViewDelegate, UITableViewDataSource {
@@ -247,6 +288,7 @@ extension QuizzesViewController: UITableViewDelegate, UITableViewDataSource {
     func makePreview(quiz: Quiz) {
         let pop = PopupView(quiz: quiz)
         view.addSubview(pop)
+        //pinati pop na sve edgeve i maknuti uiscreen.frame
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -254,11 +296,11 @@ extension QuizzesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: 134, height: 28)) //set these values as necessary
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: 134, height: 45)) //set these values as necessary
         returnedView.backgroundColor = UIColor.clear
         
-        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 134, height: 28))
-        let str = self.quizzesMatrix[section].first!.category.rawValue
+        let label = UILabel(frame: CGRect(x: 0, y: -5, width: 134, height: 20))
+        let str = quizzesMatrix[section].first!.category.rawValue
         label.text = str.capitalizingFirstLetter()
         label.font = UIFont(name: Fonts.mainBold, size: 20)
         label.textColor = chooseQuizCategoryColor(quiz: quizzesMatrix[section].first!)

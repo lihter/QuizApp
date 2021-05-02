@@ -8,12 +8,11 @@
 import UIKit
 
 class PopupView: UIView {
-    var quiz: Quiz
+    private var quiz: Quiz
     
-    let questionText:UILabel = {
+    private let questionText:UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        //label.text = "Pop quiz"
         label.font = UIFont(name: Fonts.mainBold, size: 20.61)
         label.textAlignment = .left
         label.textColor = .white
@@ -22,7 +21,7 @@ class PopupView: UIView {
         return label
     }()
     
-    let subtitleLabel:UILabel = {
+    private let subtitleLabel:UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont(name: Fonts.main, size: 16)
@@ -34,7 +33,7 @@ class PopupView: UIView {
         return label
     }()
     
-    let container: UIView = {
+    private let container: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
         v.backgroundColor = UIColor(red: 116/255, green: 79/255, blue: 163/255, alpha: 1) //dodati gradient boju
@@ -42,7 +41,7 @@ class PopupView: UIView {
         return v
     }()
     
-    lazy var stack: UIStackView = {
+    private lazy var stack: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [questionText, subtitleLabel])
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
@@ -62,8 +61,8 @@ class PopupView: UIView {
     }
     
     @objc func animateIn() {
-        self.container.transform = CGAffineTransform(translationX: 0, y: -self.frame.height)
-        self.alpha = 0
+        container.transform = CGAffineTransform(translationX: 0, y: -self.frame.height)
+        alpha = 0
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
             self.container.transform = .identity
             self.alpha = 1
@@ -79,12 +78,12 @@ class PopupView: UIView {
         self.quiz = quiz
         super.init(frame: .zero)
         
-        self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(animateOut)))
-        self.backgroundColor = UIColor.white.withAlphaComponent(0.6)
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(animateOut))) // maknuti self di netreba
+        backgroundColor = UIColor.white.withAlphaComponent(0.6)
         questionText.text = quiz.questions.first!.question
         
-        self.frame = UIScreen.main.bounds
-        self.addSubview(container)
+        frame = UIScreen.main.bounds
+        addSubview(container)
         
         container.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         container.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true

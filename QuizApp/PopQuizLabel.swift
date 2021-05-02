@@ -8,10 +8,13 @@
 import UIKit
 
 class PopQuizLabel: UILabel {
+    //MARK: Constants
+    private let labelText: String = "PopQuiz"
     
+    //MARK: Code
     init(size: CGFloat) {
         super.init(frame: .zero)
-        text = "PopQuiz"
+        text = labelText
         textColor = .white
         font = UIFont(name: Fonts.mainBold, size: size)
         textAlignment = .center
@@ -20,7 +23,4 @@ class PopQuizLabel: UILabel {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    //MARK: Constants
-    let labelText: String = "PopQuiz"
 }

@@ -52,10 +52,20 @@ public func buttonColorStyle(_ styleOption: StyleOptions) -> UIColor {
     case .purple:
         return UIColor(red: 0.387, green: 0.16, blue: 0.871, alpha: 1)
     case .green:
-        return .green
+        return UIColor(red: 25/255, green: 143/255, blue: 25/255, alpha: 1)
     case .red:
         return .red
+    }
+}
 
+public func tabBarSelectedImageColor(_ styleOption: StyleOptions) -> UIColor {
+    switch styleOption {
+    case .purple:
+        return UIColor(red: 116/255, green: 79/255, blue: 163/255, alpha: 1)
+    case .green:
+        return UIColor(red: 7/255, green: 109/255, blue: 7/255, alpha: 1)
+    case .red:
+        return .red
     }
 }
 
