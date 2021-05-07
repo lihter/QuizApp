@@ -15,12 +15,16 @@ public enum ImageEnum {
     case passwordEye
     
     //TabBarItems
-    case firstTabBarItem
-    case firstTabBarItemSelected
-    case secondTabBarItem
-    case secondTabBarItemSelected
-    case thirdTabBarItem
-    case thirdTabBarItemSelected
+    case quizTabBarItem
+    case quizTabBarItemSelected
+    case searchTabBarItem
+    case searchTabBarItemSelected
+    case settingsTabBarItem
+    case settingsTabBarItemSelected
+    
+    //NavigationButtonItems
+    case backwardArrowItem
+    case xmarkItem
     
     var image: UIImage {
         switch self {
@@ -30,12 +34,22 @@ public enum ImageEnum {
         case .errorSign: return UIImage(named: "errorImageFile.svg")!
         case .passwordEye: return UIImage(named: "Hide.svg")!
             
-        case .firstTabBarItem: return UIImage(systemName: "questionmark.square.fill")!
-        case .firstTabBarItemSelected: return (UIImage(systemName: "questionmark.square.fill")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
-        case .secondTabBarItem: return UIImage(systemName: "magnifyingglass")!
-        case .secondTabBarItemSelected: return (UIImage(systemName: "magnifyingglass")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
-        case .thirdTabBarItem: return UIImage(systemName: "gearshape.fill")!
-        case .thirdTabBarItemSelected: return (UIImage(systemName: "gearshape.fill")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
+        //case .quizTabBarItem: return UIImage(systemName: "questionmark.square.fill")!
+        //case .quizTabBarItemSelected: return (UIImage(systemName: "questionmark.square.fill")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
+        case .quizTabBarItem: return (UIImage(named: "quizTabBarIconFigma.svg")?.withTintColor(unselectedTabBarItemColor, renderingMode: .alwaysOriginal))!
+        case .quizTabBarItemSelected: return (UIImage(named: "quizTabBarIconFigma.svg")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
+        //case .searchTabBarItem: return UIImage(systemName: "magnifyingglass")!
+        //case .searchTabBarItemSelected: return (UIImage(systemName: "magnifyingglass")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
+        case .searchTabBarItem: return (UIImage(named: "searchTabBarIconFigma.svg")?.withTintColor(unselectedTabBarItemColor, renderingMode: .alwaysOriginal))!
+        case .searchTabBarItemSelected: return (UIImage(named: "searchTabBarIconFigma.svg")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
+        //case .settingsTabBarItem: return UIImage(systemName: "gearshape.fill")!
+        //case .settingsTabBarItemSelected: return (UIImage(systemName: "gearshape.fill")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
+        case .settingsTabBarItem: return (UIImage(named: "settingsTabBarIconFigma.svg")?.withTintColor(unselectedTabBarItemColor, renderingMode: .alwaysOriginal))!
+        case .settingsTabBarItemSelected: return (UIImage(named: "settingsTabBarIconFigma.svg")?.withTintColor(tabBarSelectedImageColor(style), renderingMode: .alwaysOriginal))!
+        
+        
+        case .backwardArrowItem: return (UIImage(systemName: "chevron.backward")?.withTintColor(.white, renderingMode: .alwaysOriginal))!
+        case .xmarkItem: return (UIImage(systemName: "xmark")?.withTintColor(.white, renderingMode: .alwaysOriginal))!
         }
     }
 

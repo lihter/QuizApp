@@ -145,7 +145,6 @@ class QuizCell: UITableViewCell {
     }
     
     private func setRatingConstraints() {
-        //starsView.centerInSuperview()
         starsView.translatesAutoresizingMaskIntoConstraints = false
         starsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18).isActive = true
         starsView.bottomAnchor.constraint(equalTo: quizTitleLabel.topAnchor).isActive = true

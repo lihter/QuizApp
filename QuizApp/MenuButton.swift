@@ -13,7 +13,7 @@ class MenuButton: UIButton {
     private let viewElementCornerRadius : CGFloat = 20
     
     //MARK: Code
-    init(_ style : StyleOptions) {
+    init() {
         super.init(frame: .zero)
         titleLabel?.font = UIFont(name: Fonts.mainBold, size: buttonFontSize)
         backgroundColor = .white

@@ -8,7 +8,12 @@
 import UIKit
 
 class PopupView: UIView {
+    //MARK: Constants
+    private let answerStackSpacing: CGFloat = 16
+
+    //MARK: Code
     private var quiz: Quiz
+    private var answersStackView: UIStackView!
     
     private let questionText:UILabel = {
         let label = UILabel()
@@ -21,31 +26,12 @@ class PopupView: UIView {
         return label
     }()
     
-    private let subtitleLabel:UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont(name: Fonts.main, size: 16)
-        label.textColor = .white
-        label.text = "Staviti cu ovdje ponudene odgovore u nekoj od sljedecih zadaca kada implementiram button za odgovore i ostale potrebne stvari"
-        label.textAlignment = .left
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        return label
-    }()
-    
     private let container: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
         v.backgroundColor = UIColor(red: 116/255, green: 79/255, blue: 163/255, alpha: 1) //dodati gradient boju
-        v.layer.cornerRadius = 10
+        v.layer.cornerRadius = 20
         return v
-    }()
-    
-    private lazy var stack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [questionText, subtitleLabel])
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .vertical
-        return stack
     }()
     
     @objc func animateOut() {
@@ -85,19 +71,43 @@ class PopupView: UIView {
         frame = UIScreen.main.bounds
         addSubview(container)
         
+        answersStackView = UIStackView()
+        answersStackView.translatesAutoresizingMaskIntoConstraints = false
+        answersStackView.axis = .vertical
+        answersStackView.distribution = .equalSpacing
+        answersStackView.spacing = answerStackSpacing
+        addButtonsToStackView()
+        
         container.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         container.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
         container.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.7).isActive = true
-        container.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.45).isActive = true
+        container.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.5).isActive = true
         
-        container.addSubview(stack)
-        stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24).isActive = true
-        stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -20.94).isActive = true
-        stack.centerYAnchor.constraint(equalTo: container.centerYAnchor).isActive = true
-        stack.heightAnchor.constraint(equalTo: container.heightAnchor, multiplier: 0.5).isActive = true
+        
+        container.addSubview(answersStackView)
+        container.addSubview(questionText)
+        
+        questionText.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24).isActive = true
+        questionText.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -20.94).isActive = true
+        questionText.topAnchor.constraint(equalTo: container.topAnchor, constant: 15).isActive = true
+        
+        answersStackView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24).isActive = true
+        answersStackView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -20.94).isActive = true
+        answersStackView.topAnchor.constraint(equalTo: questionText.bottomAnchor, constant: 15).isActive = true
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func addButtonsToStackView() {
+        guard let question = quiz.questions.first else {
+            print("Quiz \(quiz.title) has no questions")
+            return
+        }
+        for answerId in 0..<question.answers.count {
+            let btn = AnswerButton(withText: question.answers[answerId])
+            answersStackView.addArrangedSubview(btn)
+        }
     }
 }

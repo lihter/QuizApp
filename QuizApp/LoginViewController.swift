@@ -10,7 +10,6 @@ import SnapKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
     //MARK: Constants
-    
     private let distance : CGFloat = 18
     private let buttonOpacity : CGFloat = 0.6
     private let emailOffsetFromSuperview : CGFloat = 240
@@ -23,6 +22,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     
     //MARK: Code
+    private var gradientLayer: CAGradientLayer!
     private var titleLabel: PopQuizLabel!
     private var emailTextField: LoginTextField!
     private var passwordTextField: LoginTextField!
@@ -31,10 +31,20 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     private var wrongCredentialsLabel: UILabel!
     private var showPasswordButton: UIButton!
     private var activeTextField: UITextField!
-    private let tabBarViewController = UITabBarController()
+    private var coordinator: MainCoordinatorPatternProtocol!
     
     private let dataService = DataService()
     
+    convenience init(coordinator: MainCoordinator) {
+        self.init()
+        
+        self.coordinator = coordinator
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +59,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         [emailTextField, passwordTextField].forEach {$0?.addTarget(self, action: #selector(editBegin(_:)), for: .editingDidBegin)}
         [emailTextField, passwordTextField].forEach {$0?.addTarget(self, action: #selector(editEnd(_:)), for: .editingDidEnd)}
         
+        
+        //Implementirao sam pomicanje svega prema gore pri prikazu tipkovnice, ucinak toga vidi se pri otvaranju tipkovnice za unos passworda dok smo u landscape modu!!!
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         
@@ -95,7 +107,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc func textChanged(_ textField: UITextField) {
-        //Maknuti labelu za incorrect credentials usput
+        //Micem labelu za incorrect credentials usput
         wrongCredentialsLabel.isHidden = true
         
         textField.text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -121,7 +133,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @objc func editEnd(_ textField: UITextField) {
         if textField == passwordTextField {
             showPasswordButton.isHidden.toggle()
-            passwordTextField.isSecureTextEntry.toggle()
         }
         
         textField.layer.borderWidth = 0
@@ -133,47 +144,47 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         print("email: \(emailTextField.text!) password: \(passwordTextField.text!)") //guard stavit
         let loginStatus = dataService.login(email: emailTextField.text!, password: passwordTextField.text!)
         if case loginStatus = LoginStatus.success {
-            initializeTabBar()
+            /*initializeTabBar()
             tabBarViewController.modalPresentationStyle = .fullScreen
-            present(tabBarViewController, animated: true, completion: nil)
+            //present(tabBarViewController, animated: true, completion: nil)
+            navigationController?.setViewControllers([tabBarViewController], animated: false)*/
+            coordinator.login(email: emailTextField.text!)
         } else {
             wrongCredentialsLabel.isHidden.toggle()
         }
     }
     
-    private func initializeTabBar() {
+    /*private func initializeTabBar() {
         let quizVC = QuizzesViewController()
         let searchVC = SearchViewController()
         let settingsVC = SettingsViewController()
         
-        quizVC.title = "Quiz"
+        /*quizVC.title = "Quiz"
         searchVC.title = "Search"
-        settingsVC.title = "Settings"
+        settingsVC.title = "Settings"*/
         
-        tabBarViewController.setViewControllers([quizVC, searchVC, settingsVC], animated: false)
+        quizVC.tabBarItem = UITabBarItem(title: "Quiz", image: ImageEnum.quizTabBarItem.image, selectedImage: ImageEnum.quizTabBarItemSelected.image)
+        searchVC.tabBarItem = UITabBarItem(title: "Search", image: ImageEnum.searchTabBarItem.image, selectedImage: ImageEnum.searchTabBarItemSelected.image)
+        settingsVC.tabBarItem = UITabBarItem(title: "Settings", image: ImageEnum.settingsTabBarItem.image, selectedImage: ImageEnum.settingsTabBarItemSelected.image)
+        
+        tabBarViewController.viewControllers = [quizVC, searchVC, settingsVC]
         
         UITabBarItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.black], for: .selected)
 
-        let items = tabBarViewController.tabBar.items!
-        items[0].image = ImageEnum.firstTabBarItem.image
-        items[0].selectedImage = ImageEnum.firstTabBarItemSelected.image
-        items[1].image = ImageEnum.secondTabBarItem.image
-        items[1].selectedImage = ImageEnum.secondTabBarItemSelected.image
-        items[2].image = ImageEnum.thirdTabBarItem.image
-        items[2].selectedImage = ImageEnum.thirdTabBarItemSelected.image
-        /*items[0].image = UIImage(systemName: "questionmark.square.fill")
-        items[0].selectedImage = UIImage(systemName: "questionmark.square.fill")?.withTintColor(tabBarItemColorSelected, renderingMode: .alwaysOriginal)
-        items[1].image = UIImage(systemName: "magnifyingglass")
-        items[1].selectedImage = UIImage(systemName: "magnifyingglass")?.withTintColor(tabBarItemColorSelected, renderingMode: .alwaysOriginal)
-        items[2].image = UIImage(systemName: "gearshape.fill")
-        items[2].selectedImage = UIImage(systemName: "gearshape.fill")?.withTintColor(tabBarItemColorSelected, renderingMode: .alwaysOriginal)*/
-    }
+        /*let items = tabBarViewController.tabBar.items!
+        items[0].image = ImageEnum.quizTabBarItem.image
+        items[0].selectedImage = ImageEnum.quizTabBarItemSelected.image
+        items[1].image = ImageEnum.searchTabBarItem.image
+        items[1].selectedImage = ImageEnum.searchTabBarItemSelected.image
+        items[2].image = ImageEnum.settingsTabBarItem.image
+        items[2].selectedImage = ImageEnum.settingsTabBarItemSelected.image*/
+    }*/
     
     private  func buildViews()  {
-        setBackgroundStyle(view, style)
+        gradientLayer = setBackgroundStyle(view)
         
         //MARK: Login button
-        loginButton = MenuButton(style)
+        loginButton = MenuButton()
         loginButton.setTitle("Login", for: .normal)
         loginButton.alpha = buttonOpacity
         
@@ -208,6 +219,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         showPasswordButton.isHidden = true
         showPasswordButton.backgroundColor = UIColor.clear
         
+        view.layer.addSublayer(gradientLayer)
         view.addSubview(loginButton)
         view.addSubview(emailTextField)
         view.addSubview(passwordTextField)
@@ -224,9 +236,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         titleLabel.snp.updateConstraints{
             $0.top.equalTo(view).offset(view.bounds.height * offsetTitleMultiplier)
         }
+        
+        gradientLayer.reloadBoundsForGradient(view)
     }
     
     private func addConstraints() {
+        
         titleLabel.snp.makeConstraints{
             $0.top.equalTo(view).offset(view.bounds.height * offsetTitleMultiplier)
             $0.centerX.equalTo(view)
@@ -236,11 +251,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             $0.width.equalTo(view).inset(buttonWidthInset)
             $0.height.equalTo(viewElementHeight)
             
-            /*Želio sam napraviti offset od superviewa da bude ovisan o visini ekrana, a ne konstantan
-            no nisam siguran kako to napraviti*/
             $0.top.equalTo(view).offset(view.bounds.height * offsetEmailMultiplier)
-            //view.bounds.height * 0.2
-            //pomaknuti constrainte kad se pojavi tipkovnica
             $0.centerX.equalTo(view)
         }
         

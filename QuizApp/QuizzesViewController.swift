@@ -30,8 +30,11 @@ class QuizzesViewController: UIViewController {
     
     
     //MARK:Code
+    private var coordinator: MainCoordinatorPatternProtocol!
     private var titleLabel: PopQuizLabel!
     private var getQuizzesButton: MenuButton!
+    
+    private var gradientLayer: CAGradientLayer!
     
     private var errorImageView: UIImageView!
     private var errorTitle: UILabel!
@@ -44,6 +47,17 @@ class QuizzesViewController: UIViewController {
     private let quizCellId: String = "quizCell"
     
     private var quizzesMatrix: [[Quiz]] = [[]]
+    
+    convenience init(coordinator: MainCoordinatorPatternProtocol) {
+        self.init()
+        
+        self.coordinator = coordinator
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,6 +122,7 @@ class QuizzesViewController: UIViewController {
         quizTableView.backgroundColor = UIColor.clear
         quizTableView.showsVerticalScrollIndicator = false
         
+        //EDIT: Popravljeno, moze sad bez tog koda!
         //Morao sam umetnuti ovaj kod kako bi se riješio sticky/floating section headera
         /*let dummyViewHeight = CGFloat(40)
         quizTableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.quizTableView.bounds.size.width, height: dummyViewHeight))
@@ -119,12 +134,11 @@ class QuizzesViewController: UIViewController {
     }
     
     private func buildViews()  {
-        setBackgroundStyle(view, style)
+        gradientLayer = setBackgroundStyle(view)
         
         //MARK: Get Quizzes Button
-        getQuizzesButton = MenuButton(style)
+        getQuizzesButton = MenuButton()
         getQuizzesButton.setTitle("Get Quiz", for: .normal)
-        getQuizzesButton.alpha = buttonOpacity
         
         //MARK: Title Pop Quiz Label
         titleLabel = PopQuizLabel(size: titleLabelSize)
@@ -149,7 +163,9 @@ class QuizzesViewController: UIViewController {
         errorDescription.textColor = .white
         errorDescription.textAlignment = .center
         errorDescription.font = UIFont(name: Fonts.main, size: errorDescriptionFontSize)
-                
+        
+        view.layer.addSublayer(gradientLayer)
+        
         view.addSubview(titleLabel)
         view.addSubview(getQuizzesButton)
         
@@ -180,6 +196,8 @@ class QuizzesViewController: UIViewController {
                 $0.width.equalTo(view.bounds.height * 0.1)
             }
         }
+        
+        gradientLayer.reloadBoundsForGradient(view)
     }
     
     private func addConstraints() {
@@ -241,27 +259,6 @@ class QuizzesViewController: UIViewController {
     }
     
     private func sortBySections(_ quizzes: [Quiz]) -> [[Quiz]] {
-        /*var matrix = [[Quiz]]()
-        for quiz in quizzes { // citljivije ostvariti ovu fju
-            if matrix.count == 0 {
-                matrix.append([quiz])
-            } else {
-                var added = false
-                var index: Int = 0
-                for section in matrix{
-                    if section.first!.category == quiz.category {
-                        added = true
-                        break
-                    }
-                    index = index + 1
-                }
-                if added == false {
-                    matrix.append([quiz])
-                } else {
-                    matrix[index].append(quiz)
-                }
-            }
-        }*/
         let groupedDict = Dictionary(grouping: quizzes, by: { $0.category })
         let array2d = groupedDict.map({ $0.value })
         return array2d
@@ -286,9 +283,10 @@ extension QuizzesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func makePreview(quiz: Quiz) {
-        let pop = PopupView(quiz: quiz)
-        view.addSubview(pop)
-        //pinati pop na sve edgeve i maknuti uiscreen.frame
+        //Mozemo umjesto quizStartVC-a prikazat PopUpView koji je napravljen u figmi, dostupan je samo u portrait modu
+        /*let pop = PopupView(quiz: quiz)
+        view.addSubview(pop)*/
+        coordinator.showQuizStartVC(for: quiz)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
