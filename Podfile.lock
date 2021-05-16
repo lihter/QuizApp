@@ -1,24 +1,28 @@
 PODS:
   - Cosmos (23.0.0)
+  - ReachabilitySwift (5.0.0)
   - SnapKit (5.0.1)
   - TinyConstraints (4.0.1)
 
 DEPENDENCIES:
   - Cosmos
+  - ReachabilitySwift
   - SnapKit
   - TinyConstraints
 
 SPEC REPOS:
   trunk:
     - Cosmos
+    - ReachabilitySwift
     - SnapKit
     - TinyConstraints
 
 SPEC CHECKSUMS:
   Cosmos: b5c6a9a637e28a061b54c8f8b1d8529d7d4db73f
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   TinyConstraints: 8dd91295e56797648c7bc335dd20e1d91ec4c192
 
-PODFILE CHECKSUM: adaf0bea13340b7b12ff3e3eab6ae5c09c77cbab
+PODFILE CHECKSUM: 57f13714b8c1f34fed96d8ae5fe32c92aeeb1ffb
 
 COCOAPODS: 1.10.1

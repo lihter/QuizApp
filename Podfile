@@ -9,5 +9,6 @@ target 'QuizApp' do
   pod 'SnapKit'
   pod 'Cosmos'
   pod 'TinyConstraints'
+  pod 'ReachabilitySwift'
   
 end
