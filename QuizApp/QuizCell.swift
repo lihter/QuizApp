@@ -9,14 +9,25 @@ import UIKit
 import Cosmos // za rating
 
 class QuizCell: UITableViewCell {
+    //MARK: Constants
+    private let imageCornerRadius: CGFloat = 6
+    private let descriptionFontSize: CGFloat = 14
+    private let ratingImageFilledColor: UIColor = UIColor(red: 242/255, green: 201/255, blue: 76/255, alpha: 1)
+    private let unfilledRatingColor: UIColor = UIColor.white.withAlphaComponent(0.3)
     
-    var quizImageView = UIImageView()
-    var quizTitleLabel = UILabel()
-    var quizDescriptionLabel = UILabel()
-    var starsView = CosmosView()
-    var quizCategoryColor = UIColor()
+    private let totalNumberOfStars: Int = 3
+    private let starHeight: Double = 9.71
+    private let starDistance: Double = 4.29
     
-    let cellView: UIView = {
+    
+    //MARK: Code
+    private var quizImageView = UIImageView()
+    private var quizTitleLabel = UILabel()
+    private var quizDescriptionLabel = UILabel()
+    private var starsView = CosmosView()
+    private var quizCategoryColor = UIColor()
+    
+    private let cellView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         view.layer.cornerRadius = 10
@@ -30,8 +41,8 @@ class QuizCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             cellView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-            cellView.rightAnchor.constraint(equalTo: self.rightAnchor),
-            cellView.leftAnchor.constraint(equalTo: self.leftAnchor),
+            cellView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            cellView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             cellView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5)
         ])
         
@@ -56,31 +67,32 @@ class QuizCell: UITableViewCell {
     }
     
     func set(quiz: Quiz) {
-        quizImageView.load(url: URL(string: quiz.imageUrl)!) //popraviti jer bude se mozda precesto crashalo, takoder mozda se previse puta loada ista slika????
+        quizImageView.load(url: URL(string: quiz.imageUrl)!)
         quizTitleLabel.text = quiz.title
         quizDescriptionLabel.attributedText = NSMutableAttributedString(string: quiz.description, attributes: [NSAttributedString.Key.kern: 0.1])
         quizCategoryColor = chooseQuizCategoryColor(quiz: quiz)
         starsView.rating = Double(quiz.level)
     }
     
-    func configureStarsView() {
+    private func configureStarsView() {
         starsView.settings.updateOnTouch = false
-        //Ne radi mi .withTintColor
-        //starsView.settings.filledImage = UIImage(named: ratingImage)?.withTintColor(quizCategoryColor, renderingMode: .alwaysTemplate)
-        starsView.settings.filledImage = UIImage(named: "ratingStarFilled.svg")
-        starsView.settings.emptyImage = UIImage(named: ratingImage)
+        //Ne radi .withTintColor (koji je unutar ovog enum-a koristen)
+        //starsView.settings.filledImage = ImageEnum.coloredStar.image
+        starsView.settings.filledImage = ImageEnum.filledStar.image
+        starsView.settings.emptyImage =  ImageEnum.emptyStar.image
         
         starsView.settings.totalStars = totalNumberOfStars
         starsView.settings.starSize = starHeight
         starsView.settings.starMargin = starDistance
     }
     
-    func configureImageView() {
+    private func configureImageView() {
         quizImageView.layer.cornerRadius = imageCornerRadius
+        quizImageView.contentMode = .scaleAspectFill
         quizImageView.clipsToBounds = true
     }
     
-    func configureTitleLabel() {
+    private func configureTitleLabel() {
         quizTitleLabel.numberOfLines = 0
         
         //Nije napomenuto što u slučaju kada je ime duže od prostora za ispis naslova, ja sam pretpostavio da ovako treba, mogu lako promijeniti ako nije tako zamišljeno
@@ -93,7 +105,7 @@ class QuizCell: UITableViewCell {
 
     }
     
-    func configureDescriptionLabel() {
+    private func configureDescriptionLabel() {
         quizDescriptionLabel.numberOfLines = 0
         quizDescriptionLabel.lineBreakMode = .byWordWrapping
         
@@ -103,7 +115,7 @@ class QuizCell: UITableViewCell {
     }
     
     
-    func setImageContstraints() {
+    private func setImageContstraints() {
         //Ovaj put neću koristiti snapkit zbog vježbe ostalih alata
         quizImageView.translatesAutoresizingMaskIntoConstraints = false
         quizImageView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
@@ -112,7 +124,7 @@ class QuizCell: UITableViewCell {
         quizImageView.widthAnchor.constraint(equalTo: quizImageView.heightAnchor, multiplier: 1).isActive = true
     }
     
-    func setTitleLabelContstraints() {
+    private func setTitleLabelContstraints() {
         //Ovaj put neću koristiti snapkit zbog vježbe ostalih alata
         quizTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         quizTitleLabel.topAnchor.constraint(equalTo: quizImageView.topAnchor, constant: 6).isActive = true
@@ -122,7 +134,7 @@ class QuizCell: UITableViewCell {
         quizTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -33).isActive = true
     }
     
-    func setDescriptionLabelContstraints() {
+    private func setDescriptionLabelContstraints() {
         //Ovaj put neću koristiti snapkit zbog vježbe ostalih alata
         quizDescriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         quizDescriptionLabel.topAnchor.constraint(equalTo: quizTitleLabel.bottomAnchor, constant: -12).isActive = true
@@ -132,35 +144,20 @@ class QuizCell: UITableViewCell {
         quizDescriptionLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18).isActive = true
     }
     
-    func setRatingConstraints() {
-        //starsView.centerInSuperview()
+    private func setRatingConstraints() {
         starsView.translatesAutoresizingMaskIntoConstraints = false
         starsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18).isActive = true
         starsView.bottomAnchor.constraint(equalTo: quizTitleLabel.topAnchor).isActive = true
     }
-    
-    
-    //MARK: Constants
-    let imageCornerRadius: CGFloat = 6
-    let descriptionFontSize: CGFloat = 14
-    let ratingImage: String = "ratingStar.svg"
-    let ratingImageFilledColor: UIColor = UIColor(red: 242/255, green: 201/255, blue: 76/255, alpha: 1)
-    let unfilledRatingColor: UIColor = UIColor.white.withAlphaComponent(0.3)
-    
-    let totalNumberOfStars: Int = 3
-    let starHeight: Double = 9.71
-    let starDistance: Double = 4.29
 }
 
 extension UIImageView {
     func load(url: URL) {
         DispatchQueue.global().async { [weak self] in
-            if let data = try? Data(contentsOf: url) {
-                if let image = UIImage(data: data) {
+            if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
                     DispatchQueue.main.async {
                         self?.image = image
                     }
-                }
             }
         }
     }

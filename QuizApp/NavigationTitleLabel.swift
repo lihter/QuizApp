@@ -1,22 +1,22 @@
 //
-//  PopQuizLabel.swift
+//  NavigationTitleLabel.swift
 //  QuizApp
 //
-//  Created by Mac Use on 13.04.2021..
+//  Created by Mac Use on 03.05.2021..
 //
 
 import UIKit
 
-class PopQuizLabel: UILabel {
+class NavigationTitleLabel: UILabel {
     //MARK: Constants
-    private let labelText: String = "PopQuiz"
+    let fontSize: CGFloat = 24
     
     //MARK: Code
-    init(size: CGFloat) {
+    init(withText title: String) {
         super.init(frame: .zero)
-        text = labelText
+        text = title
         textColor = .white
-        font = UIFont(name: Fonts.mainBold, size: size)
+        font = UIFont(name: Fonts.mainBold, size: fontSize)
         textAlignment = .center
     }
     
