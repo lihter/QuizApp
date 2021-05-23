@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20D91" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDQuestion" representedClassName="CDQuestion" syncable="YES">
+        <attribute name="answers" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="String"/>
+        <attribute name="correctAnswer" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="identifier" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="question" attributeType="String"/>
+        <relationship name="quiz" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDQuiz" inverseName="questions" inverseEntity="CDQuiz"/>
+    </entity>
+    <entity name="CDQuiz" representedClassName="CDQuiz" syncable="YES">
+        <attribute name="category" attributeType="String"/>
+        <attribute name="identifier" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="imageUrl" attributeType="String"/>
+        <attribute name="level" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="quizDescription" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="questions" toMany="YES" deletionRule="Cascade" destinationEntity="CDQuestion" inverseName="quiz" inverseEntity="CDQuestion"/>
+    </entity>
+    <elements>
+        <element name="CDQuestion" positionX="-787.9209594726562" positionY="-200.7978820800781" width="128" height="118"/>
+        <element name="CDQuiz" positionX="-408.3011474609375" positionY="-13.72222900390625" width="128" height="148"/>
+    </elements>
+</model>
