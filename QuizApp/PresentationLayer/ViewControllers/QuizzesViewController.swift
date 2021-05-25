@@ -247,18 +247,23 @@ class QuizzesViewController: UIViewController, TabBarThemeProtocol {
     }
     
     private func showQuizzesFromCD() {
-        quizzes = presenter.filterRestaurants(filter: FilterSettings())
+        quizzes = presenter.filterQuizzes(filter: FilterSettings())
         reloadQuizDataViews()
     }
     
     private func refreshQuizzes() {
-        do {
-            quizzes = try presenter.refreshRestaurants()
-            reloadQuizDataViews()
-        } catch  {
-            let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+        presenter.refreshQuizzes{ result in
+            switch result {
+            case .success(let quizzesHelper):
+                self.quizzes = quizzesHelper
+                DispatchQueue.main.async {
+                    self.reloadQuizDataViews()
+                }
+            case .failure(let error):
+                let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
         }
     }
     

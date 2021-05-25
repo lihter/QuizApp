@@ -9,31 +9,20 @@ import Foundation
 
 struct QuizNetworkDataSource: QuizNetworkSourceProtocol {
     
-    func fetchQuizzesFromNetwork() throws -> [Quiz] {
-        var quizzes: [Quiz]? = nil
-        guard let url = URL(string: "https://iosquiz.herokuapp.com/api/quizzes") else { throw RequestError.serverError}
+    func fetchQuizzesFromNetwork(completionHandler: @escaping (Result<[Quiz], RequestError>) -> Void) {
+        guard let url = URL(string: "https://iosquiz.herokuapp.com/api/quizzes") else {
+            print("Error fetching from network.")
+            return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
-        let networkService = NetworkService()
-        var checkIfDone = false
         networkService.executeUrlRequest(request) { (result: Result<QuizResponse, RequestError>) in
             switch result {
             case .failure(let error):
-                MainCoordinator.handleRequestError(error: error)
+                completionHandler(.failure(error))
             case .success(let value):
-                quizzes = value.quizzes
+                completionHandler(.success(value.quizzes))
             }
-            checkIfDone.toggle()
-        }
-        while checkIfDone != true{
-            //radno cekanje koje mogu sigurno na neki bolji nacin rijesiti, ali sad cu ostaviti ovako pojednostavljeno
-        }
-        
-        if quizzes != nil {
-            return quizzes!
-        } else {
-            throw RequestError.fetchingFromNetError
         }
     }
 }

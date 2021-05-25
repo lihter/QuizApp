@@ -28,7 +28,6 @@ class DataCoordinator: DataCoordinatorProtocol {
     //MARK: - Coordinator vars
     private let navigationController: UINavigationController!
     private var mainCoordinator: MainCoordinator!
-    private let networkService: NetworkServiceProtocol!
     private var quizzes: [Quiz]!
     private var quiz: Quiz!
     
@@ -40,7 +39,6 @@ class DataCoordinator: DataCoordinatorProtocol {
     init(navigationController: UINavigationController, mainCoordinator: MainCoordinator) {
         self.navigationController = navigationController
         self.mainCoordinator = mainCoordinator
-        self.networkService = NetworkService()
     }
     
     //MARK: - Functions

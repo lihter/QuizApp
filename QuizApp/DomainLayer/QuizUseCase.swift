@@ -14,8 +14,14 @@ final class QuizUseCase {
         self.quizRepo = quizRepo
     }
 
-    func refreshData() throws {
-        try quizRepo.fetchNetworkData()
+    func refreshData(completionHandler: @escaping (Error?) -> Void) {
+        quizRepo.fetchNetworkData{ error in
+            if error == nil {
+                completionHandler(nil)
+            } else {
+                completionHandler(error)
+            }
+        }
     }
 
     func getQuizzes(filter: FilterSettings) -> [Quiz] {

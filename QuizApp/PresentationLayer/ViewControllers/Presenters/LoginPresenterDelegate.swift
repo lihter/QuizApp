@@ -30,7 +30,6 @@ class LoginPresenter {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
-        let networkService = NetworkService()
         networkService.executeUrlRequest(request) { (result: Result<UserModel, RequestError>) in
             switch result {
             case .failure(let error):

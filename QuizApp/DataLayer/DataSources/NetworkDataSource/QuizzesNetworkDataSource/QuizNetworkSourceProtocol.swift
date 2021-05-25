@@ -6,5 +6,5 @@
 //
 
 protocol QuizNetworkSourceProtocol {
-    func fetchQuizzesFromNetwork() throws -> [Quiz]
+    func fetchQuizzesFromNetwork(completionHandler: @escaping (Result<[Quiz], RequestError>) -> Void)
 }

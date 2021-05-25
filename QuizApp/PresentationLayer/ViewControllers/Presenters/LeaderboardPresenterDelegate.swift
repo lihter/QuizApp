@@ -30,7 +30,6 @@ class LeaderboardPresenter {
         request.setValue(UserDefaults.standard.string(forKey: "Token"), forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let networkService = NetworkService()
         networkService.executeUrlRequest(request) { (result: Result<[LeaderboardResult], RequestError>) in
             switch result {
             case .failure(let error):
@@ -53,7 +52,6 @@ class LeaderboardPresenter {
         let jsonData = try? JSONEncoder().encode(resultData)
         request.httpBody = jsonData
         
-        let networkService = NetworkService()
         networkService.executeUrlRequest(request) { (result: Result<EmptyResponseModel, RequestError>) in
             switch result {
             case .failure(let error):

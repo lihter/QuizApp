@@ -13,3 +13,5 @@ let titleLabelSize: CGFloat = 24
 let correctAnswerColor: UIColor = UIColor(red: 111/255, green: 207/255, blue: 151/255, alpha: 1)
 let wrongAnswerColor: UIColor = UIColor(red: 252/255, green: 101/255, blue: 101/255, alpha: 1)
 let unselectedTabBarItemColor: UIColor = UIColor(red: 178/255, green: 181/255, blue: 192/255, alpha: 1)
+
+let networkService = NetworkService()

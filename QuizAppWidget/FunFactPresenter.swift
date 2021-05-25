@@ -11,26 +11,19 @@ import Foundation
 //https://www.npoint.io/docs/0f1cac17f9c065d4d789
 
 class FunFactPresenter {
-    func fetchQuizzesFromNetwork(completionHandler: @escaping(FunFactResponse?) -> Void) {
+    func fetchQuizzesFromNetwork(completionHandler: @escaping(Result<String?, RequestError>) -> Void) {
         let url = URL(string: "https://api.npoint.io/0f1cac17f9c065d4d789")
         var request = URLRequest(url: url!)
-        var responseFunFact: FunFactResponse? = nil
         request.httpMethod = "GET"
         
         let networkService = NetworkService()
-        var loaded = false
         networkService.executeUrlRequest(request) { (result: Result<FunFactResponse, RequestError>) in
             switch result {
             case .failure(let error):
-                print(error)
+                completionHandler(.failure(error))
             case .success(let value):
-                responseFunFact = value
+                completionHandler(.success(value.widgetFunFact))
             }
-            loaded.toggle()
         }
-        while(!loaded) {
-            //radno cekanje, kasnije to zamijeniti nekim elegantnijim rješenjem
-        }
-        completionHandler(responseFunFact)
     }
 }

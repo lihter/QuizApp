@@ -22,13 +22,16 @@ struct Provider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         
-        loader.fetchQuizzesFromNetwork{ (response) in
-            if(response != nil && response?.widgetFunFact != nil) {
+        loader.fetchQuizzesFromNetwork{ result in
+            switch result {
+            case .success(let string):
                 let currentDate = Date()
-                let entry = FunFactEntry(date: currentDate, funFact: (response?.widgetFunFact)!)
+                let entry = FunFactEntry(date: currentDate, funFact: string ?? "")
                 let refreshDate = Calendar.current.date(byAdding: .minute, value: 60, to: currentDate)!
                 let timeline = Timeline(entries: [entry], policy: .after(refreshDate))
                 completion(timeline)
+            case .failure(let error):
+                print("Error occured: \(error)")
             }
         }
     }

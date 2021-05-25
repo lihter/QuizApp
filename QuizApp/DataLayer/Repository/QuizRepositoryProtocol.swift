@@ -6,7 +6,7 @@
 //
 
 protocol QuizRepositoryProtocol {
-    func fetchNetworkData() throws
+    func fetchNetworkData(completionHandler: @escaping (Error?) -> Void)
     func fetchLocalData(filter: FilterSettings) -> [Quiz]
     func deleteLocalData(withId id: Int)
 }

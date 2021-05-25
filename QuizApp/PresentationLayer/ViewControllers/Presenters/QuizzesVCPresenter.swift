@@ -21,12 +21,17 @@ final class QuizVCPresenter {
         self.currentFilterSettings = FilterSettings()
     }
 
-    func refreshRestaurants() throws -> [Quiz] {
-        try quizUseCase.refreshData()
-        return filterRestaurants(filter: currentFilterSettings)
+    func refreshQuizzes(completionHandler: @escaping (Result<[Quiz], Error>) -> Void) {
+        quizUseCase.refreshData { error in
+            if error == nil {
+                completionHandler(.success(self.filterQuizzes(filter: self.currentFilterSettings)))
+            } else {
+                completionHandler(.failure(error!))
+            }
+        }
     }
 
-    func filterRestaurants(filter: FilterSettings) -> [Quiz] {
+    func filterQuizzes(filter: FilterSettings) -> [Quiz] {
         currentFilterSettings = filter
         quizzes = quizUseCase.getQuizzes(filter: filter)
         return quizzes

@@ -120,7 +120,7 @@ class SearchViewController: UIViewController, TabBarThemeProtocol, SearchDelegat
     
     private func showFilteredQuizzes(filterString: String?) {
         let filter = FilterSettings(searchText: filterString)
-        quizzes = presenter.filterRestaurants(filter: filter)
+        quizzes = presenter.filterQuizzes(filter: filter)
         quizzesMatrix = QuizManager.sortBySections(quizzes)
         quizTableView.reloadData()
     }

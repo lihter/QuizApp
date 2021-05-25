@@ -15,9 +15,16 @@ class QuizDataRepository: QuizRepositoryProtocol {
         self.coreDataSource = coreDataSource
     }
     
-    func fetchNetworkData() throws {
-        let quizzes = try networkDataSource.fetchQuizzesFromNetwork()
-        coreDataSource.saveNewQuizzes(quizzes) //error
+    func fetchNetworkData(completionHandler: @escaping (Error?) -> Void) {
+        networkDataSource.fetchQuizzesFromNetwork{ result in
+            switch result {
+            case .success(let quizzes):
+                self.coreDataSource.saveNewQuizzes(quizzes)
+                completionHandler(nil)
+            case .failure(let error):
+                completionHandler(error)
+            }
+        }
     }
     
     func fetchLocalData(filter: FilterSettings) -> [Quiz] {
