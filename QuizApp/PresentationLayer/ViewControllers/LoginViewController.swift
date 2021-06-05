@@ -18,6 +18,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate, LoginPresenter
     private let wrongCredentialsFontSize : CGFloat = 16
     private let offsetEmailMultiplier: CGFloat = 0.2843
     private let offsetTitleMultiplier: CGFloat = 0.0948
+    private let durationOfSingleAnimation: CGFloat = 1.5
+    private let delayBetweenAnimations: CGFloat = 0.25
     
     //MARK: - VC elements
     private var gradientLayer = CAGradientLayer()
@@ -31,6 +33,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, LoginPresenter
     private var coordinator: MainCoordinatorPatternProtocol!
     private let presenter = LoginPresenter()
     
+    private var animateIn: UIViewPropertyAnimator!
+    private var animateOut: UIViewPropertyAnimator!
+    private var centerConstraint: CGFloat!
+    
     //MARK: - Code
     convenience init(coordinator: MainCoordinator) {
         self.init()
@@ -41,6 +47,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, LoginPresenter
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        animateAtStart()
     }
 
     override func viewDidLoad() {
@@ -67,6 +79,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, LoginPresenter
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -190,7 +205,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, LoginPresenter
     
     func successfulLogin() {
         DispatchQueue.main.async {
-            self.coordinator.successfulLogin()
+            self.animateSuccessfulLogin()
         }
     }
     
@@ -261,5 +276,78 @@ class LoginViewController: UIViewController, UITextFieldDelegate, LoginPresenter
         print("email: \(emailTextField.text!) password: \(passwordTextField.text!)")
         presenter.setViewDelegate(delegate: self)
         presenter.login(email: emailTextField.text ?? "", password: passwordTextField.text ?? "")
+    }
+    
+    private func cofigureInitialAnimationSetup() {
+        titleLabel.alpha = 0
+        titleLabel.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+        
+        emailTextField.alpha = 0
+        emailTextField.frame.origin.x = -emailTextField.frame.width
+        
+        passwordTextField.alpha = 0
+        passwordTextField.frame.origin.x = -passwordTextField.frame.width
+        
+        loginButton.alpha = 0
+        loginButton.frame.origin.x = -loginButton.frame.width
+    }
+    
+    private func animateAtStart() {
+        animateIn = UIViewPropertyAnimator(
+            duration: Double(durationOfSingleAnimation + delayBetweenAnimations * 3),
+            curve: .easeInOut)
+        
+        cofigureInitialAnimationSetup()
+        
+        animateIn.addAnimations {
+            self.titleLabel.alpha = 1
+            self.titleLabel.transform  = CGAffineTransform(scaleX: 1, y: 1)
+        }
+        
+        animateIn.addAnimations({
+            self.emailTextField.alpha = 1
+            self.emailTextField.frame.origin.x = (self.view.frame.width - self.emailTextField.frame.width) / 2
+        }, delayFactor: delayBetweenAnimations)
+        
+        animateIn.addAnimations({
+            self.passwordTextField.alpha = 1
+            self.passwordTextField.frame.origin.x = (self.view.frame.width - self.passwordTextField.frame.width) / 2
+        }, delayFactor: 2 * delayBetweenAnimations)
+        
+        animateIn.addAnimations({
+            self.loginButton.alpha = self.buttonOpacity
+            self.loginButton.frame.origin.x = (self.view.frame.width - self.loginButton.frame.width) / 2
+        }, delayFactor: 3 * delayBetweenAnimations)
+        
+        animateIn.startAnimation()
+    }
+    
+    private func animateSuccessfulLogin() {
+        animateOut = UIViewPropertyAnimator(
+            duration: Double(durationOfSingleAnimation + delayBetweenAnimations * 3),
+            curve: .easeInOut)
+        
+        animateOut.addAnimations {
+            self.titleLabel.frame.origin.y = -self.titleLabel.frame.height
+        }
+        
+        animateOut.addAnimations({
+            self.emailTextField.frame.origin.y = -self.emailTextField.frame.height
+        }, delayFactor: delayBetweenAnimations)
+        
+        animateOut.addAnimations({
+            self.passwordTextField.frame.origin.y = -self.passwordTextField.frame.height
+            self.showPasswordButton.frame.origin.y = -self.showPasswordButton.frame.height
+        }, delayFactor: 2 * delayBetweenAnimations)
+        
+        animateOut.addAnimations({
+            self.loginButton.frame.origin.y = -self.loginButton.frame.height
+        }, delayFactor: 3 * delayBetweenAnimations)
+        
+        animateOut.addCompletion {_ in
+            self.coordinator.successfulLogin()
+        }
+        
+        animateOut.startAnimation()
     }
 }

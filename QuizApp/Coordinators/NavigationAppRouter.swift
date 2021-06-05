@@ -21,7 +21,7 @@ protocol AppRouterProtocol {
     func logout()
 }
 
-class AppRouter: AppRouterProtocol {
+class AppRouter: AppRouterProtocol{
     //MARK: - Coordinator vars
     private let navigationController: UINavigationController!
     private var mainCoordinator: MainCoordinator!
