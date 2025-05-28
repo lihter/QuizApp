@@ -129,8 +129,13 @@ Clean Architecture enforces a separation of concerns by dividing code into layer
 ## Screenshots
 
 ![screenshot-1](https://github.com/user-attachments/assets/627c865f-44b2-46bf-aa3a-cc61ba2c465c)
+
 ![screenshot-2](https://github.com/user-attachments/assets/638d89f7-d91f-4aaf-a86c-bba32da8e51e)
+
 ![screenshot-3](https://github.com/user-attachments/assets/3060eb3e-0986-45e9-801e-59816b12af93)
+
 ![screenshot-4](https://github.com/user-attachments/assets/6dc17d17-90f6-4981-8e3e-6227e79e1cc9)
+
 ![screenshot-5](https://github.com/user-attachments/assets/b661919f-e75b-494a-a098-1f902193c0c8)
+
 ![screenshot-6](https://github.com/user-attachments/assets/ad26ed85-06f0-467e-bada-48ade66dec04)
